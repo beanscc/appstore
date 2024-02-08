@@ -2,11 +2,23 @@
 
 提供以下 API:
 - app store server api
-- app store connect api
+- [TODO] app store connect api
 
 > 注意两者的 API key 是需要单独创建的
 
-## installation
+## Contents
+
+- [Installation](#Installation)
+- [Documentation](#Documentation)
+- [API Examples](#API-Examples)
+  - [app store server api](#app-store-server-api)
+    - [Init Service](#init-service)
+    - [LookupOrder](#LookupOrder)
+    - [GetTransactionInfo](#GetTransactionInfo)
+    - [GetTransactionHistory](#GetTransactionHistory)
+    - [GetRefundHistory](#GetRefundHistory)
+
+## Installation
 
 - install
 ```bash
@@ -18,16 +30,15 @@ go get -u github.com/beanscc/appstore
 import "github.com/beanscc/appstore"
 ```
 
-## documentation
+## Documentation
 
 [API documentation](https://pkg.go.dev/github.com/beanscc/appstore) for package
 
-## api examples
-
+## API Examples
 
 ### app store server api
 
-#### 初始化 Service
+#### Init Service
 
 ```go
 config := Config{
@@ -47,66 +58,105 @@ service := appstoreserverapi.NewService(token)
 #### LookupOrder
 
 ```go
-	token := NewToken(&config)
-	service := NewService(token).Debug(false)
-	customerOrderID := `MTV70QV5J9`
-	transactions, err := service.LookupOrder(context.Background(), customerOrderID)
-	if err != nil {
-		log.Printf("[ERROR] service.LookupOrder failed. err:%v, customerOrderID:%s", err, customerOrderID)
-	}
+token := appstoreserverapi.NewToken(&config)
+service := appstoreserverapi.NewService(token).Debug(false)
+customerOrderID := `MTV70QV5J9`
+transactions, err := service.LookupOrder(context.Background(), customerOrderID)
+if err != nil {
+    log.Printf("[ERROR] service.LookupOrder failed. err:%v, customerOrderID:%s", err, customerOrderID)
+}
 
-	for i, v := range transactions {
-		// ....
-	}
+for i, v := range transactions {
+    // ....
+}
 ```
 
-## app store server api
-文档：https://developer.apple.com/documentation/appstoreserverapi
+#### GetTransactionInfo
 
-**已完成的 API**
+```go
+token := appstoreserverapi.NewToken(testConfig())
+service := appstoreserverapi.NewService(token).Debug(false)
+transactionID := `350001859400409`
+got, err := service.GetTransactionInfo(context.Background(), transactionID)
+if err != nil {
+    log.Printf("[ERROR] Service.GetTransactionInfo failed. err:%v", err)
+    return
+}
 
-| API | 说明                 |
-| :--- |:-------------------|
-|LookupOrder| 根据用户订单ID，查询用户的内购交易信息  |
-|GetTransactionInfo| 根据订单交易ID，查询用户的交易信息    |
-|GetTransactionHistory| 根据订单交易ID，查询用户的所有交易记录  |
-|GetAllSubscriptionStatuses| 根据订阅交易ID，查询用户的所有订阅数据  |
-|GetRefundHistory| 根据交易ID，查询用户的所有退款交易 |
+log.Printf("Service.GetTransactionInfo: got:%#v", got)
+```
 
-> 以上方法的调用，请参考相应方法的 test
+#### GetTransactionHistory
 
-## QA
+```go
+ctx := context.Background()
+token := appstoreserverapi.NewToken(testConfig())
+service := appstoreserverapi.NewService(token).Debug(false)
+req := GetTransactionHistoryReq{
+    TransactionID: `350001859400409`,
+    Query:         nil,
+}
+got, err := service.GetTransactionHistory(ctx, &req)
+if err != nil {
+    log.Printf("[ERROR] Service.GetTransactionHistory failed. err:%v", err)
+    return
+}
 
-1. api key 如何创建?          
-https://developer.apple.com/documentation/appstoreserverapi/creating_api_keys_to_use_with_the_app_store_server_api
+total := 0
+for n := 0; ; n++ {
+    loop := n + 1
+    log.Printf("[INFO] Service.GetTransactionHistory loop:%d base:%#v", loop, got.TransactionHistoryBase)
+    for i, v := range got.Transactions {
+        log.Printf("[INFO] Service.GetTransactionHistory loop:%d, got idx:%3d, v:%#v", loop, i, v)
+        total++
+    }
 
-登陆 app store connect 后台 (http://appstoreconnect.apple.com)
+    if got.HasMore {
+		// next page
+        got, err = got.Next(context.Background())
+    } else {
+        break
+    }
+}
 
-![img_5.png](img_5.png)
+log.Printf("[INFO] total:%d", total)
+```
 
-![img_3.png](img_3.png)
+#### GetRefundHistory
 
-注意 API 密钥只能下载一次，请立即保存       
-![img_2.png](img_2.png)
+```go
+ctx := context.Background()
+token := appstoreserverapi.NewToken(testConfig())
+service := appstoreserverapi.NewService(token).Debug(false)
 
-2. `LookupOrder` 方法需要的 `customerOrderID` 从哪里获取？ 
+transactionID := `140002007488219`
+revision := ``
+got, err := service.GetRefundHistory(ctx, transactionID, revision)
+if err != nil {
+    log.Printf("[ERROR] Service.GetRefundHistory failed. err:%v", err)
+    return
+}
 
-Apple 给的说明如下：       
-When customers make one or more in-app purchases in your app, the App Store emails them a receipt. The receipt contains an order ID. Use this order ID to call Look Up Order ID. Customers can also retrieve their order IDs from their purchase history on the App Store;
+total := 0
+for n := 0; ; n++ {
+    loop := n + 1
+    log.Printf("[INFO] Service.GetRefundHistory loop:%d, got revision:%s", loop, got.Revision)
+    for i, v := range got.SignedTransactions {
+        transaction, err := v.GetTransaction()
+        if err != nil {
+            log.Printf("[ERROR] Service.GetRefundHistory v.GetTransaction failed. err:%v", err)
+            return
+        }
+        log.Printf("[INFO] Service.GetRefundHistory loop:%d, got idx:%3d, v:%#v", loop, i, transaction)
+        total++
+    }
 
-其实就是这个东西，用户反馈时候，让用户提供就可以了       
-![img_4.png](img_4.png)
-
-## JWS 如何验证
-
-文档：https://developer.apple.com/documentation/appstoreserverapi/jwsdecodedheader
-
-![img.png](img.png)
-
-x5c 证书链的验证  
-
-![img_1.png](img_1.png)
-
-### 参考文章
-- https://cloud.tencent.com/developer/article/1836878
-- https://juejin.cn/post/7221542464843055160
+    if got.HasMore {
+		// next page
+        got, err = got.Next(context.Background())
+    } else {
+        break
+    }
+}
+log.Printf("[INFO] total:%d", total)
+```
