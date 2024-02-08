@@ -38,6 +38,8 @@ import "github.com/beanscc/appstore"
 
 ### app store server api
 
+API 调用示例未给出的，请参见 `Test` [方法](appstoreserverapi/api_test.go)
+
 #### Init Service
 
 ```go
