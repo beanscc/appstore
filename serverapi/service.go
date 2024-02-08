@@ -19,9 +19,9 @@ type Service struct {
 	// debug 将打印请求日志，用于开发测试
 	debug bool
 
-	// 是否 sandbox 缓解
+	// 是否 sandbox 环境
 	sandbox bool
-	// token
+	// api token
 	token *Token
 }
 
@@ -109,7 +109,7 @@ func (s *Service) request(ctx context.Context, method string, path string, body 
 		return 0, nil, err
 	}
 
-	// 响应错误处理
+	// 响应错误
 	err = handleApiErr(resp.StatusCode, payload)
 	return resp.StatusCode, payload, err
 }

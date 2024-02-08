@@ -85,8 +85,9 @@ func (h *Header) Verify() (*ecdsa.PublicKey, error) {
 	return leaf.PublicKey.(*ecdsa.PublicKey), nil
 }
 
+// verify 验证证书链
 func (h *Header) verify(leaf, intermediate, root *x509.Certificate) error {
-	// 验证证书链
+	// 验证终端证书
 	opts := x509.VerifyOptions{
 		Roots:         x509.NewCertPool(),
 		Intermediates: x509.NewCertPool(),
@@ -113,8 +114,7 @@ func (h *Header) verify(leaf, intermediate, root *x509.Certificate) error {
 	[leaf cert verify] issuer:Apple Root CA - G3, subject: name:Apple Root CA - G3, org:[Apple Inc.], org-uni:[Apple Certification Authority]
 	*/
 
-	// 使用 apple 官方根证书验证回调中的 root 证书
-	// Apple PKI 官方提供的根证书
+	// 使用 Apple PKI 官方提供的根证书验证回调中的 root 证书
 	rootFromApplePKI := x509.NewCertPool()
 	if ok := rootFromApplePKI.AppendCertsFromPEM([]byte(appleRootCertificate)); !ok {
 		return errors.New("failed to append apple root certificate")
