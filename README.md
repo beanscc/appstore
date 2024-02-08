@@ -6,6 +6,60 @@
 
 > 注意两者的 API key 是需要单独创建的
 
+## installation
+
+- install
+```bash
+go get -u github.com/beanscc/appstore
+```
+
+- import it in you code
+```go
+import "github.com/beanscc/appstore"
+```
+
+## documentation
+
+[API documentation](https://pkg.go.dev/github.com/beanscc/appstore) for package
+
+## api examples
+
+
+### app store server api
+
+#### 初始化 Service
+
+```go
+config := Config{
+    BundleID: `Your app’s bundle ID (Ex: “com.example.testbundleid2021”)`,
+    Issuer:   `Your issuer ID from the Keys page in App Store Connect (Ex: "57246542-96fe-1a63-e053-0824d011072a")`,
+    KeyID:    `Your private key ID from App Store Connect (Ex: 2X9R4HXF34)`,
+    PrivateKey: []byte(`-----BEGIN PRIVATE KEY-----
+    YOUR PRIVATE KEY
+    -----END PRIVATE KEY-----`),
+    Timeout: 20 * time.Second,
+}
+
+token := appstoreserverapi.NewToken(&config)
+service := appstoreserverapi.NewService(token)
+```
+
+#### LookupOrder
+
+```go
+	token := NewToken(&config)
+	service := NewService(token).Debug(false)
+	customerOrderID := `MTV70QV5J9`
+	transactions, err := service.LookupOrder(context.Background(), customerOrderID)
+	if err != nil {
+		log.Printf("[ERROR] service.LookupOrder failed. err:%v, customerOrderID:%s", err, customerOrderID)
+	}
+
+	for i, v := range transactions {
+		// ....
+	}
+```
+
 ## app store server api
 文档：https://developer.apple.com/documentation/appstoreserverapi
 

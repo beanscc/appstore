@@ -1,4 +1,4 @@
-package serverapi
+package appstoreserverapi
 
 import (
 	"context"

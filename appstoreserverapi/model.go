@@ -1,4 +1,4 @@
-package serverapi
+package appstoreserverapi
 
 import (
 	"github.com/beanscc/appstore/jws"
