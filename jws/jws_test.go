@@ -19,8 +19,8 @@ func TestJWS_VerifyAndBind(t *testing.T) {
 		jwt.RegisteredClaims
 
 		AppAccountToken string `json:"appAccountToken"`
-		TransactionId   string `json:"transactionId"`
-		BundleId        string `json:"bundleId"`
+		TransactionID   string `json:"transactionId"`
+		BundleID        string `json:"bundleId"`
 		Type            string `json:"type"`
 		Environment     string `json:"environment"`
 		Price           int    `json:"price"`

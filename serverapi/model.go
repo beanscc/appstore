@@ -80,7 +80,7 @@ type JWSTransaction struct {
 	// If your app doesn’t provide an appAccountToken, this string is empty.
 	AppAccountToken string `json:"appAccountToken,omitempty"`
 	// The bundle identifier of the app.
-	BundleId string `json:"bundleId,omitempty"`
+	BundleID string `json:"bundleId,omitempty"`
 	// The server environment, either sandbox or production
 	Environment Environment `json:"environment,omitempty"`
 
@@ -91,10 +91,10 @@ type JWSTransaction struct {
 	// The UNIX time, in milliseconds, that represents the purchase date of the original transaction identifier
 	OriginalPurchaseDate int64 `json:"originalPurchaseDate,omitempty"`
 	// The transaction identifier of the original purchase
-	OriginalTransactionId string `json:"originalTransactionId,omitempty"`
+	OriginalTransactionID string `json:"originalTransactionId,omitempty"`
 
 	// The unique identifier of the product
-	ProductId string `json:"productId,omitempty"`
+	ProductID string `json:"productId,omitempty"`
 	// The three-letter ISO 4217 currency code associated with the price parameter.
 	// This value is present only if price is present
 	Currency string `json:"currency,omitempty"`
@@ -105,7 +105,7 @@ type JWSTransaction struct {
 	// The number of consumable products the customer purchased.
 	Quantity int `json:"quantity,omitempty"`
 	// The unique identifier of the transaction
-	TransactionId string `json:"transactionId,omitempty"`
+	TransactionID string `json:"transactionId,omitempty"`
 	// The type of the in-app purchase
 	Type TransactionType `json:"type,omitempty"`
 	// The reason for the purchase transaction, which indicates whether it’s a customer’s purchase or a renewal
@@ -125,7 +125,7 @@ type JWSTransaction struct {
 	// The three-letter code that represents the country or region associated with the App Store storefront for the purchase
 	Storefront string `json:"storefront,omitempty"`
 	// An Apple-defined value that uniquely identifies the App Store storefront associated with the purchase
-	StorefrontId string `json:"storefrontId,omitempty"`
+	StorefrontID string `json:"storefrontId,omitempty"`
 
 	// ===== only to auto-renewable subscriptions ====
 
@@ -145,7 +145,7 @@ type JWSTransaction struct {
 	// A value that represents the promotional offer type.
 	OfferType OfferType `json:"offerType,omitempty"`
 	// The unique identifier of subscription purchase events across devices, including subscription renewals.
-	WebOrderLineItemId string `json:"webOrderLineItemId,omitempty"`
+	WebOrderLineItemID string `json:"webOrderLineItemId,omitempty"`
 }
 
 type SignedTransaction string
@@ -216,7 +216,7 @@ type JWSRenewalInfo struct {
 	OfferType                   OfferType        `json:"offerType"`
 	OriginalTransactionID       string           `json:"originalTransactionId"`
 	PriceIncreaseStatus         *int32           `json:"priceIncreaseStatus"`
-	ProductId                   string           `json:"productId"`
+	ProductID                   string           `json:"productId"`
 	RecentSubscriptionStartDate int64            `json:"recentSubscriptionStartDate"`
 	RenewalDate                 int64            `json:"renewalDate"`
 	SignedDate                  int64            `json:"signedDate"`

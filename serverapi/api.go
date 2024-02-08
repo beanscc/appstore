@@ -85,7 +85,7 @@ type GetTransactionHistoryReqQuery struct {
 
 	// An optional filter that indicates the product identifier to include in the transaction history.
 	// Your query may specify more than one productID
-	ProductId []string `form:"productId"`
+	ProductID []string `form:"productId"`
 
 	// An optional filter that indicates the product type to include in the transaction history.
 	// Your query may specify more than one productType
@@ -127,7 +127,7 @@ func (r *GetTransactionHistoryReqQuery) Values() url.Values {
 		query.Add("endDate", strconv.FormatInt(r.EndDate, 10))
 	}
 
-	for _, v := range r.ProductId {
+	for _, v := range r.ProductID {
 		query.Add("productId", v)
 	}
 
@@ -155,8 +155,8 @@ func (r *GetTransactionHistoryReqQuery) Values() url.Values {
 }
 
 type TransactionHistoryBase struct {
-	AppAppleId  int64       `json:"appAppleId"`
-	BundleId    string      `json:"bundleId"`
+	AppAppleID  int64       `json:"appAppleId"`
+	BundleID    string      `json:"bundleId"`
 	Environment Environment `json:"environment"`
 	HasMore     bool        `json:"hasMore"`
 	Revision    string      `json:"revision"`
@@ -236,7 +236,7 @@ type SubscriptionGroupIdentifierItem struct {
 }
 
 type SubscriptionLastTransactions struct {
-	OriginalTransactionId string                          `json:"originalTransactionId"`
+	OriginalTransactionID string                          `json:"originalTransactionId"`
 	Status                AutoRenewableSubscriptionStatus `json:"status"`
 	SignedRenewalInfo     SignedRenewal                   `json:"signedRenewalInfo"`
 	SignedTransactionInfo SignedTransaction               `json:"signedTransactionInfo"`

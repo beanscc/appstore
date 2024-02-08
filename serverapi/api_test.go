@@ -102,7 +102,7 @@ func TestService_GetAllSubscriptionStatuses(t *testing.T) {
 			renewInfo, _ := v1.SignedRenewalInfo.GetRenewInfo()
 			transactionInfo, _ := v1.SignedTransactionInfo.GetTransaction()
 			t.Logf("TestService_GetAllSubscriptionStatuses.LastTransactions i:%3d, v.originalTransactionId:%s, Status:%d, JWSRenewalInfo:%#v, JWSTransaction:%#v",
-				i1, v1.OriginalTransactionId, v1.Status, renewInfo, transactionInfo)
+				i1, v1.OriginalTransactionID, v1.Status, renewInfo, transactionInfo)
 		}
 	}
 }
