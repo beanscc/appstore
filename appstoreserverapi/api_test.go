@@ -20,10 +20,9 @@ YOUR PRIVATE KEY
 
 func TestService_LookupOrder(t *testing.T) {
 	token := NewToken(testConfig())
-	ctx := context.Background()
 	service := NewService(token).Debug(false)
 	customerOrderID := `MTV70QV5J9`
-	got, err := service.LookupOrder(ctx, customerOrderID)
+	got, err := service.LookupOrder(context.Background(), customerOrderID)
 	if err != nil {
 		t.Errorf("TestService_LookupOrder failed. err:%v", err)
 		return
@@ -36,10 +35,9 @@ func TestService_LookupOrder(t *testing.T) {
 
 func TestService_GetTransactionInfo(t *testing.T) {
 	token := NewToken(testConfig())
-	ctx := context.Background()
 	service := NewService(token).Debug(false)
 	transactionID := `350001859400409`
-	got, err := service.GetTransactionInfo(ctx, transactionID)
+	got, err := service.GetTransactionInfo(context.Background(), transactionID)
 	if err != nil {
 		t.Errorf("TestService_GetTransactionInfo failed. err:%v", err)
 		return
@@ -65,8 +63,15 @@ func TestService_GetTransactionHistory(t *testing.T) {
 	total := 0
 	for n := 0; ; n++ {
 		loop := n + 1
-		t.Logf("TestService_GetTransactionHistory loop:%d base:%#v", loop, got.TransactionHistoryBase)
-		for i, v := range got.Transactions {
+		t.Logf("TestService_GetTransactionHistory loop:%d, env:%s, bundle_id:%s, has_more:%v, revision:%s",
+			loop, got.Environment, got.BundleID, got.HasMore, got.Revision)
+
+		transactions, err := got.GetTransactions()
+		if err != nil {
+			t.Errorf("TestService_GetTransactionHistory loop:%d, got.GetTransactions failed. err:%v", loop, err)
+			return
+		}
+		for i, v := range transactions {
 			t.Logf("TestService_GetTransactionHistory loop:%d, got idx:%3d, v:%#v", loop, i, v)
 			total++
 		}
@@ -101,7 +106,7 @@ func TestService_GetAllSubscriptionStatuses(t *testing.T) {
 		for i1, v1 := range v.LastTransactions {
 			renewInfo, _ := v1.SignedRenewalInfo.GetRenewInfo()
 			transactionInfo, _ := v1.SignedTransactionInfo.GetTransaction()
-			t.Logf("TestService_GetAllSubscriptionStatuses.LastTransactions i:%3d, v.originalTransactionId:%s, Status:%d, JWSRenewalInfo:%#v, JWSTransaction:%#v",
+			t.Logf("TestService_GetAllSubscriptionStatuses.LastTransactions i:%3d, v.originalTransactionId:%s, Status:%d, RenewalInfo:%#v, Transaction:%#v",
 				i1, v1.OriginalTransactionID, v1.Status, renewInfo, transactionInfo)
 		}
 	}
@@ -127,7 +132,7 @@ func TestService_GetRefundHistory(t *testing.T) {
 		for i, v := range got.SignedTransactions {
 			transaction, err := v.GetTransaction()
 			if err != nil {
-				t.Errorf("TestService_GetRefundHistory v.GetTransaction failed. err:%v", err)
+				t.Errorf("TestService_GetRefundHistory v.GetTransaction failed. loop:%d, err:%v", loop, err)
 				return
 			}
 			t.Logf("TestService_GetRefundHistory loop:%d, got idx:%3d, v:%#v", loop, i, transaction)

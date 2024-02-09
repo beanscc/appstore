@@ -73,9 +73,9 @@ const (
 	SortDesc Sort = "DESCENDING"
 )
 
-// JWSTransaction A decoded payload that contains transaction information
+// Transaction A decoded payload that contains transaction information
 // https://developer.apple.com/documentation/appstoreserverapi/jwstransactiondecodedpayload
-type JWSTransaction struct {
+type Transaction struct {
 	// A UUID you create at the time of purchase that associates the transaction with a customer on your own service.
 	// If your app doesn’t provide an appAccountToken, this string is empty.
 	AppAccountToken string `json:"appAccountToken,omitempty"`
@@ -148,9 +148,9 @@ type JWSTransaction struct {
 	WebOrderLineItemID string `json:"webOrderLineItemId,omitempty"`
 }
 
-type SignedTransaction string
+type JWSTransaction string
 
-func (s SignedTransaction) GetTransaction() (*JWSTransaction, error) {
+func (s JWSTransaction) GetTransaction() (*Transaction, error) {
 	val, err := jws.Parse(string(s))
 	if err != nil {
 		return nil, err
@@ -158,14 +158,14 @@ func (s SignedTransaction) GetTransaction() (*JWSTransaction, error) {
 
 	type Payload struct {
 		jwt.RegisteredClaims
-		JWSTransaction
+		Transaction
 	}
 	var out Payload
 	if err := val.VerifyAndBind(&out); err != nil {
 		return nil, err
 	}
 
-	return &out.JWSTransaction, nil
+	return &out.Transaction, nil
 }
 
 // AutoRenewableSubscriptionStatus 自动续订状态
@@ -205,7 +205,9 @@ const (
 	ExpirationIntentOtherReason                       ExpirationIntent = 5
 )
 
-type JWSRenewalInfo struct {
+// RenewalInfo subscription renewal information for an auto-renewable subscription
+// https://developer.apple.com/documentation/appstoreserverapi/jwsrenewalinfodecodedpayload
+type RenewalInfo struct {
 	AutoRenewProductID          string           `json:"autoRenewProductId"`
 	AutoRenewStatus             AutoRenewStatus  `json:"autoRenewStatus"`
 	Environment                 Environment      `json:"environment"`
@@ -222,21 +224,21 @@ type JWSRenewalInfo struct {
 	SignedDate                  int64            `json:"signedDate"`
 }
 
-type SignedRenewal string
+type JWSRenewalInfo string
 
-func (s SignedRenewal) GetRenewInfo() (*JWSRenewalInfo, error) {
+func (s JWSRenewalInfo) GetRenewInfo() (*RenewalInfo, error) {
 	val, err := jws.Parse(string(s))
 	if err != nil {
 		return nil, err
 	}
 	type Payload struct {
 		jwt.RegisteredClaims
-		JWSRenewalInfo
+		RenewalInfo
 	}
 	var out Payload
 	if err := val.VerifyAndBind(&out); err != nil {
 		return nil, err
 	}
 
-	return &out.JWSRenewalInfo, nil
+	return &out.RenewalInfo, nil
 }

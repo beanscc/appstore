@@ -66,6 +66,7 @@ customerOrderID := `MTV70QV5J9`
 transactions, err := service.LookupOrder(context.Background(), customerOrderID)
 if err != nil {
     log.Printf("[ERROR] service.LookupOrder failed. err:%v, customerOrderID:%s", err, customerOrderID)
+	return
 }
 
 for i, v := range transactions {
@@ -107,8 +108,15 @@ if err != nil {
 total := 0
 for n := 0; ; n++ {
     loop := n + 1
-    log.Printf("[INFO] Service.GetTransactionHistory loop:%d base:%#v", loop, got.TransactionHistoryBase)
-    for i, v := range got.Transactions {
+    log.Printf("[INFO] Service.GetTransactionHistory loop:%d, env:%s, bundle_id:%s, has_more:%v, revision:%s",
+loop, got.Environment, got.BundleID, got.HasMore, got.Revision)
+
+    transactions, err := got.GetTransactions()
+    if err != nil {
+    log.Printf("[ERROR] Service.GetTransactionHistory loop:%d, got.GetTransactions failed. err:%v", loop, err)
+        return
+    }
+    for i, v := range transactions {
         log.Printf("[INFO] Service.GetTransactionHistory loop:%d, got idx:%3d, v:%#v", loop, i, v)
         total++
     }
@@ -146,7 +154,7 @@ for n := 0; ; n++ {
     for i, v := range got.SignedTransactions {
         transaction, err := v.GetTransaction()
         if err != nil {
-            log.Printf("[ERROR] Service.GetRefundHistory v.GetTransaction failed. err:%v", err)
+            log.Printf("[ERROR] Service.GetRefundHistory v.GetTransaction failed. loop:%d, err:%v", loop, err)
             return
         }
         log.Printf("[INFO] Service.GetRefundHistory loop:%d, got idx:%3d, v:%#v", loop, i, transaction)

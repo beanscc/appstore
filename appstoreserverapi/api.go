@@ -11,13 +11,13 @@ import (
 type LookupOrderResp struct {
 	// 0 contains an array of one or more signed transactions for the in-app purchase based on the order ID.
 	// 1 1 doesn't contain a signed transactions array.
-	Status             int                 `json:"status"`
-	SignedTransactions []SignedTransaction `json:"signedTransactions"`
+	Status             int              `json:"status"`
+	SignedTransactions []JWSTransaction `json:"signedTransactions"`
 }
 
 // LookupOrder Get a customer’s in-app purchases from a receipt using the order ID.
 // api: https://developer.apple.com/documentation/appstoreserverapi/look_up_order_id
-func (s *Service) LookupOrder(ctx context.Context, customerOrderID string) ([]JWSTransaction, error) {
+func (s *Service) LookupOrder(ctx context.Context, customerOrderID string) ([]Transaction, error) {
 	_, body, err := s.get(ctx, "/inApps/v1/lookup/"+customerOrderID, nil)
 	if err != nil {
 		return nil, err
@@ -29,10 +29,10 @@ func (s *Service) LookupOrder(ctx context.Context, customerOrderID string) ([]JW
 	}
 
 	if 1 == res.Status {
-		return nil, errors.New("appstore.serverapi: doesn't contain a signed transactions")
+		return nil, errors.New("appstore.appstoreserverapi: doesn't contain a signed transactions")
 	}
 
-	out := make([]JWSTransaction, 0, len(res.SignedTransactions))
+	out := make([]Transaction, 0, len(res.SignedTransactions))
 	for _, v := range res.SignedTransactions {
 		transaction, err := v.GetTransaction()
 		if err != nil {
@@ -45,14 +45,16 @@ func (s *Service) LookupOrder(ctx context.Context, customerOrderID string) ([]JW
 	return out, nil
 }
 
-func (s *Service) GetTransactionInfo(ctx context.Context, transactionID string) (*JWSTransaction, error) {
+// GetTransactionInfo Get information about a single transaction for your app
+// https://developer.apple.com/documentation/appstoreserverapi/get_transaction_info
+func (s *Service) GetTransactionInfo(ctx context.Context, transactionID string) (*Transaction, error) {
 	_, body, err := s.get(ctx, "/inApps/v1/transactions/"+transactionID, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	type Response struct {
-		SignedTransactionInfo SignedTransaction `json:"signedTransactionInfo"`
+		SignedTransactionInfo JWSTransaction `json:"signedTransactionInfo"`
 	}
 
 	var res Response
@@ -154,25 +156,31 @@ func (r *GetTransactionHistoryReqQuery) Values() url.Values {
 	return query
 }
 
-type TransactionHistoryBase struct {
-	AppAppleID  int64       `json:"appAppleId"`
-	BundleID    string      `json:"bundleId"`
-	Environment Environment `json:"environment"`
-	HasMore     bool        `json:"hasMore"`
-	Revision    string      `json:"revision"`
-}
-
 // GetTransactionHistoryResp A response that contains the customer’s transaction history for an app
 type GetTransactionHistoryResp struct {
+	AppAppleID         int64            `json:"appAppleId"`
+	BundleID           string           `json:"bundleId"`
+	Environment        Environment      `json:"environment"`
+	HasMore            bool             `json:"hasMore"`
+	Revision           string           `json:"revision"`
+	SignedTransactions []JWSTransaction `json:"signedTransactions"`
+
 	// ===== 用于调用 next ====
 	service *Service
 	req     *GetTransactionHistoryReq
+}
 
-	// ====== 响应数据 ======
-	TransactionHistoryBase
-	SignedTransactions []SignedTransaction `json:"signedTransactions"`
-
-	Transactions []JWSTransaction `json:"-"`
+// GetTransactions 获取当前返回数据中的交易信息
+func (resp *GetTransactionHistoryResp) GetTransactions() ([]Transaction, error) {
+	transactions := make([]Transaction, 0, len(resp.SignedTransactions))
+	for _, v := range resp.SignedTransactions {
+		transaction, err := v.GetTransaction()
+		if err != nil {
+			return nil, err
+		}
+		transactions = append(transactions, *transaction)
+	}
+	return transactions, nil
 }
 
 // Next GetTransactionHistory 的下一页
@@ -182,6 +190,10 @@ func (resp *GetTransactionHistoryResp) Next(ctx context.Context) (*GetTransactio
 	}
 
 	req := resp.req
+	if req == nil {
+		return nil, errors.New("appstore.appstoreserverapi.GetTransactionHistoryResp: invalid req")
+	}
+
 	query := req.Query
 	if query == nil {
 		query = &GetTransactionHistoryReqQuery{Revision: resp.Revision}
@@ -206,16 +218,6 @@ func (s *Service) GetTransactionHistory(ctx context.Context, req *GetTransaction
 		return nil, err
 	}
 
-	transactions := make([]JWSTransaction, 0, len(out.SignedTransactions))
-	for _, v := range out.SignedTransactions {
-		transaction, err := v.GetTransaction()
-		if err != nil {
-			return nil, err
-		}
-		transactions = append(transactions, *transaction)
-	}
-	out.Transactions = transactions
-
 	// 调用 next 使用
 	out.service = s
 	out.req = req
@@ -238,8 +240,8 @@ type SubscriptionGroupIdentifierItem struct {
 type SubscriptionLastTransactions struct {
 	OriginalTransactionID string                          `json:"originalTransactionId"`
 	Status                AutoRenewableSubscriptionStatus `json:"status"`
-	SignedRenewalInfo     SignedRenewal                   `json:"signedRenewalInfo"`
-	SignedTransactionInfo SignedTransaction               `json:"signedTransactionInfo"`
+	SignedRenewalInfo     JWSRenewalInfo                  `json:"signedRenewalInfo"`
+	SignedTransactionInfo JWSTransaction                  `json:"signedTransactionInfo"`
 }
 
 // GetAllSubscriptionStatuses Get the statuses for all of a customer’s auto-renewable subscriptions in your app.
@@ -267,14 +269,13 @@ func (s *Service) GetAllSubscriptionStatuses(ctx context.Context, transactionID 
 }
 
 type GetRefundHistoryResp struct {
+	HasMore            bool             `json:"hasMore"`
+	Revision           string           `json:"revision"`
+	SignedTransactions []JWSTransaction `json:"signedTransactions"`
+
 	// ==== request ====
 	service       *Service
 	transactionID string
-
-	// ==== response ====
-	HasMore            bool                `json:"hasMore"`
-	Revision           string              `json:"revision"`
-	SignedTransactions []SignedTransaction `json:"signedTransactions"`
 }
 
 // Next GetTransactionHistoryResp 的下一页

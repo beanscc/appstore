@@ -11,6 +11,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+// Token JSON Web Tokens signed to authorize App Store Server API requests
 type Token struct {
 	conf *Config
 
@@ -92,7 +93,7 @@ func (t *Token) create() (string, time.Time, error) {
 func (t *Token) loadPrivateKey() (*ecdsa.PrivateKey, error) {
 	block, _ := pem.Decode(t.conf.PrivateKey)
 	if block == nil {
-		return nil, errors.New("appstore.serverapi.Token: private api key must be a PEM encoded PKCS8 key")
+		return nil, errors.New("appstore.appstoreserverapi.Token: private api key must be a PEM encoded PKCS8 key")
 	}
 
 	key, err := x509.ParsePKCS8PrivateKey(block.Bytes)
@@ -102,7 +103,7 @@ func (t *Token) loadPrivateKey() (*ecdsa.PrivateKey, error) {
 
 	pk, ok := key.(*ecdsa.PrivateKey)
 	if !ok {
-		return nil, errors.New("appstore.serverapi.Token: key is not a valid ECDSA private key")
+		return nil, errors.New("appstore.appstoreserverapi.Token: key is not a valid ECDSA private key")
 	}
 
 	return pk, nil

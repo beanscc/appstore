@@ -15,7 +15,7 @@ func TestJWS_VerifyAndBind(t *testing.T) {
 		return
 	}
 	// https://developer.apple.com/documentation/appstoreserverapi/jwstransactiondecodedpayload
-	type JWSTransaction struct {
+	type Transaction struct {
 		jwt.RegisteredClaims
 
 		AppAccountToken string `json:"appAccountToken"`
@@ -27,7 +27,7 @@ func TestJWS_VerifyAndBind(t *testing.T) {
 		Currency        string `json:"currency"`
 	}
 
-	var payload JWSTransaction
+	var payload Transaction
 	if err := jws.VerifyAndBind(&payload); err != nil {
 		t.Errorf("TestJWS_VerifyAndBind failed. err:%v", err)
 		return
