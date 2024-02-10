@@ -168,6 +168,20 @@ func (s JWSTransaction) GetTransaction() (*Transaction, error) {
 	return &out.Transaction, nil
 }
 
+type JWSTransactions []JWSTransaction
+
+func (ts JWSTransactions) GetTransactions() ([]Transaction, error) {
+	transactions := make([]Transaction, 0, len(ts))
+	for _, v := range ts {
+		transaction, err := v.GetTransaction()
+		if err != nil {
+			return nil, err
+		}
+		transactions = append(transactions, *transaction)
+	}
+	return transactions, nil
+}
+
 // AutoRenewableSubscriptionStatus 自动续订状态
 // https://developer.apple.com/documentation/appstoreserverapi/status
 type AutoRenewableSubscriptionStatus int32
@@ -241,4 +255,16 @@ func (s JWSRenewalInfo) GetRenewInfo() (*RenewalInfo, error) {
 	}
 
 	return &out.RenewalInfo, nil
+}
+
+type SubscriptionGroupIdentifierItem struct {
+	SubscriptionGroupIdentifier string                         `json:"subscriptionGroupIdentifier"`
+	LastTransactions            []SubscriptionLastTransactions `json:"lastTransactions"`
+}
+
+type SubscriptionLastTransactions struct {
+	OriginalTransactionID string                          `json:"originalTransactionId"`
+	Status                AutoRenewableSubscriptionStatus `json:"status"`
+	SignedRenewalInfo     JWSRenewalInfo                  `json:"signedRenewalInfo"`
+	SignedTransactionInfo JWSTransaction                  `json:"signedTransactionInfo"`
 }
