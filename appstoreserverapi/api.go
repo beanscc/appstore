@@ -1,6 +1,7 @@
 package appstoreserverapi
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -281,6 +282,113 @@ func (s *Service) GetRefundHistory(ctx context.Context, transactionID string, re
 
 	out.transactionID = transactionID
 	out.service = s
+
+	return &out, nil
+}
+
+// GetNotificationHistoryReq https://developer.apple.com/documentation/appstoreserverapi/notificationhistoryrequest
+type GetNotificationHistoryReq struct {
+	// [Required]
+	StartDate int64 `json:"startDate"`
+	// [Required]
+	EndDate int64 `json:"endDate"`
+	// [Optional]
+	NotificationType NotificationType `json:"notificationType"`
+	// [Optional]
+	NotificationSubtype NotificationSubtype `json:"notificationSubtype"`
+	// [Optional]
+	OnlyFailures bool `json:"onlyFailures"`
+	// [Optional]
+	TransactionId string `json:"transactionId"`
+}
+
+// GetNotificationHistoryResp A response that contains the App Store Server Notifications history for your app
+// https://developer.apple.com/documentation/appstoreserverapi/notificationhistoryresponse
+type GetNotificationHistoryResp struct {
+	HasMore             bool                      `json:"hasMore"`
+	PaginationToken     string                    `json:"paginationToken"`
+	NotificationHistory []NotificationHistoryItem `json:"notificationHistory"`
+
+	// === for next
+	service *Service
+	req     *GetNotificationHistoryReq
+}
+
+// Next GetNotificationHistoryResp 下一页数据
+func (resp *GetNotificationHistoryResp) Next(ctx context.Context) (*GetNotificationHistoryResp, error) {
+	if resp.HasMore {
+		return nil, nil
+	}
+
+	return resp.service.GetNotificationHistory(ctx, resp.req, resp.PaginationToken)
+}
+
+// GetNotificationHistory Get a list of notifications that the App Store server attempted to send to your server
+// Notification history is available for the past 180 days. Choose a startDate that’s within 180 days of the current date.
+// https://developer.apple.com/documentation/appstoreserverapi/get_notification_history
+func (s *Service) GetNotificationHistory(ctx context.Context, req *GetNotificationHistoryReq, paginationToken string) (*GetNotificationHistoryResp, error) {
+	query := url.Values{}
+	if paginationToken != "" {
+		query.Add("paginationToken", paginationToken)
+	}
+
+	payload, err := json.Marshal(req)
+	if err != nil {
+		return nil, err
+	}
+
+	_, body, err := s.request(ctx, "POST", "/inApps/v1/notifications/history?"+query.Encode(), bytes.NewBuffer(payload))
+	if err != nil {
+		return nil, err
+	}
+
+	var out GetNotificationHistoryResp
+	if err := json.Unmarshal(body, &out); err != nil {
+		return nil, err
+	}
+
+	out.service = s
+	out.req = req
+
+	return &out, nil
+}
+
+type RequestTestNotificationResp struct {
+	TestNotificationToken string `json:"testNotificationToken"`
+}
+
+// RequestTestNotification Ask App Store Server Notifications to send a test notification to your server
+// https://developer.apple.com/documentation/appstoreserverapi/request_a_test_notification
+func (s *Service) RequestTestNotification(ctx context.Context) (*RequestTestNotificationResp, error) {
+	_, body, err := s.request(ctx, "POST", "/inApps/v1/notifications/test", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var out RequestTestNotificationResp
+	if err := json.Unmarshal(body, &out); err != nil {
+		return nil, err
+	}
+
+	return &out, nil
+}
+
+type GetTestNotificationStatusResp struct {
+	SendAttempts  []NotificationSendAttemptItem `json:"sendAttempts"`
+	SignedPayload JWSNotification               `json:"signedPayload"`
+}
+
+// GetTestNotificationStatus Check the status of the test App Store server notification sent to your server
+// https://developer.apple.com/documentation/appstoreserverapi/get_test_notification_status
+func (s *Service) GetTestNotificationStatus(ctx context.Context, testNotificationToken string) (*GetTestNotificationStatusResp, error) {
+	_, body, err := s.get(ctx, "/inApps/v1/notifications/test/"+testNotificationToken, nil)
+	if err != nil {
+		return nil, err
+	}
+	var out GetTestNotificationStatusResp
+	if err := json.Unmarshal(body, &out); err != nil {
+		return nil, err
+	}
 
 	return &out, nil
 }

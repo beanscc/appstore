@@ -268,3 +268,131 @@ type SubscriptionLastTransactions struct {
 	SignedRenewalInfo     JWSRenewalInfo                  `json:"signedRenewalInfo"`
 	SignedTransactionInfo JWSTransaction                  `json:"signedTransactionInfo"`
 }
+
+// NotificationType The type that describes the in-app purchase event for which the App Store sends the version 2 notification
+// https://developer.apple.com/documentation/appstoreservernotifications/notificationtype
+type NotificationType string
+
+const (
+	NotificationTypeConsumptionRequest   NotificationType = "CONSUMPTION_REQUEST"
+	NotificationTypeDidChangeRenewPref   NotificationType = "DID_CHANGE_RENEWAL_PREF"
+	NotificationTypeDidChangeRenewStatus NotificationType = "DID_CHANGE_RENEWAL_STATUS"
+	NotificationTypeDidFailToRenew       NotificationType = "DID_FAIL_TO_RENEW"
+	NotificationTypeDidRenew             NotificationType = "DID_RENEW"
+	NotificationTypeExpired              NotificationType = "EXPIRED"
+	NotificationTypeGracePeriodExpired   NotificationType = "GRACE_PERIOD_EXPIRED"
+	NotificationTypeOfferRedeemed        NotificationType = "OFFER_REDEEMED"
+	NotificationTypePriceIncrease        NotificationType = "PRICE_INCREASE"
+	NotificationTypeRefund               NotificationType = "REFUND"
+	NotificationTypeRefundDeclined       NotificationType = "REFUND_DECLINED"
+	NotificationTypeRefundReversed       NotificationType = "REFUND_REVERSED"
+	NotificationTypeRenewalExtended      NotificationType = "RENEWAL_EXTENDED"
+	NotificationTypeRenewalExtension     NotificationType = "RENEWAL_EXTENSION"
+	NotificationTypeRevoke               NotificationType = "REVOKE"
+	NotificationTypeSubscribed           NotificationType = "SUBSCRIBED"
+	NotificationTypeTest                 NotificationType = "TEST"
+)
+
+// NotificationSubtype A string that provides details about select notification types in version 2
+// https://developer.apple.com/documentation/appstoreservernotifications/subtype
+type NotificationSubtype string
+
+const (
+	NotificationSubtypeAccepted          NotificationSubtype = "ACCEPTED"
+	NotificationSubtypeAutoRenewDisabled NotificationSubtype = "AUTO_RENEW_DISABLED"
+	NotificationSubtypeAutoRenewEnabled  NotificationSubtype = "AUTO_RENEW_ENABLED"
+	NotificationSubtypeBillingRecovery   NotificationSubtype = "BILLING_RECOVERY"
+	NotificationSubtypeBillingRetry      NotificationSubtype = "BILLING_RETRY"
+	NotificationSubtypeDowngrade         NotificationSubtype = "DOWNGRADE"
+	NotificationSubtypeFailure           NotificationSubtype = "FAILURE"
+	NotificationSubtypeGracePeriod       NotificationSubtype = "GRACE_PERIOD"
+	NotificationSubtypeInitialBuy        NotificationSubtype = "INITIAL_BUY"
+	NotificationSubtypePending           NotificationSubtype = "PENDING"
+	NotificationSubtypePriceIncrease     NotificationSubtype = "PRICE_INCREASE"
+	NotificationSubtypeProductNotForSale NotificationSubtype = "PRODUCT_NOT_FOR_SALE"
+	NotificationSubtypeResubscribe       NotificationSubtype = "RESUBSCRIBE"
+	NotificationSubtypeSummary           NotificationSubtype = "SUMMARY"
+	NotificationSubtypeUpgrade           NotificationSubtype = "UPGRADE"
+	NotificationSubtypeVoluntary         NotificationSubtype = "VOLUNTARY"
+)
+
+type NotificationHistoryItem struct {
+	SendAttempts  []NotificationSendAttemptItem `json:"sendAttempts"`
+	SignedPayload JWSNotification               `json:"signedPayload"`
+}
+
+type JWSNotification string
+
+func (s JWSNotification) GetNotification() (*Notification, error) {
+	val, err := jws.Parse(string(s))
+	if err != nil {
+		return nil, err
+	}
+	type Payload struct {
+		jwt.RegisteredClaims
+		Notification
+	}
+	var out Payload
+	if err := val.VerifyAndBind(&out); err != nil {
+		return nil, err
+	}
+
+	return &out.Notification, nil
+}
+
+// Notification the version 2 notification data
+// https://developer.apple.com/documentation/appstoreservernotifications/responsebodyv2decodedpayload
+type Notification struct {
+	NotificationType NotificationType    `json:"notificationType"`
+	Subtype          NotificationSubtype `json:"subtype"`
+	Data             NotificationData    `json:"data"`
+	Summary          NotificationSummary `json:"summary"`
+	Version          string              `json:"version"`
+	SignedDate       int64               `json:"signedDate"`
+	NotificationUUID string              `json:"notificationUUID"`
+}
+
+type NotificationData struct {
+	AppAppleID            int64                           `json:"appAppleId"`
+	BundleID              string                          `json:"bundleId"`
+	BundleVersion         string                          `json:"bundleVersion"`
+	Environment           Environment                     `json:"environment"`
+	SignedRenewalInfo     JWSRenewalInfo                  `json:"signedRenewalInfo"`
+	SignedTransactionInfo JWSTransaction                  `json:"signedTransactionInfo"`
+	Status                AutoRenewableSubscriptionStatus `json:"status"`
+}
+
+// NotificationSummary https://developer.apple.com/documentation/appstoreservernotifications/summary
+type NotificationSummary struct {
+	RequestIdentifier      string      `json:"requestIdentifier"`
+	Environment            Environment `json:"environment"`
+	AppAppleID             int64       `json:"appAppleId"`
+	BundleID               string      `json:"bundleId"`
+	ProductID              string      `json:"productId"`
+	StorefrontCountryCodes []string    `json:"storefrontCountryCodes"`
+	FailedCount            int64       `json:"failedCount"`
+	SucceededCount         int64       `json:"succeededCount"`
+}
+
+type NotificationSendAttemptItem struct {
+	AttemptDate       int64                         `json:"attemptDate"`
+	SendAttemptResult NotificationSendAttemptResult `json:"sendAttemptResult"`
+}
+
+// NotificationSendAttemptResult The success or error information the App Store server records when it attempts to send an App Store server notification to your server
+// https://developer.apple.com/documentation/appstoreserverapi/sendattemptresult
+type NotificationSendAttemptResult string
+
+const (
+	NotificationSendAttemptResultSuccess                      NotificationSendAttemptResult = "SUCCESS"
+	NotificationSendAttemptResultCircularRedirect             NotificationSendAttemptResult = "CIRCULAR_REDIRECT"
+	NotificationSendAttemptResultInvalidResponse              NotificationSendAttemptResult = "INVALID_RESPONSE"
+	NotificationSendAttemptResultNoResponse                   NotificationSendAttemptResult = "NO_RESPONSE"
+	NotificationSendAttemptResultOther                        NotificationSendAttemptResult = "OTHER"
+	NotificationSendAttemptResultPrematureClose               NotificationSendAttemptResult = "PREMATURE_CLOSE"
+	NotificationSendAttemptResultSocketIssue                  NotificationSendAttemptResult = "SOCKET_ISSUE"
+	NotificationSendAttemptResultTimeout                      NotificationSendAttemptResult = "TIMED_OUT"
+	NotificationSendAttemptResultTLSIssue                     NotificationSendAttemptResult = "TLS_ISSUE"
+	NotificationSendAttemptResultUnsuccessfulHttpResponseCode NotificationSendAttemptResult = "UNSUCCESSFUL_HTTP_RESPONSE_CODE"
+	NotificationSendAttemptResultUnsupportedCharset           NotificationSendAttemptResult = "UNSUPPORTED_CHARSET"
+)

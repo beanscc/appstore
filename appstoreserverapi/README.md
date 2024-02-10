@@ -3,13 +3,16 @@
 
 **已完成的 API**
 
-| API | 说明                 |
-| :--- |:-------------------|
-|LookupOrder| 根据用户订单ID，查询用户的内购交易信息  |
-|GetTransactionInfo| 根据订单交易ID，查询用户的交易信息    |
-|GetTransactionHistory| 根据订单交易ID，查询用户的所有交易记录  |
-|GetAllSubscriptionStatuses| 根据订阅交易ID，查询用户的所有订阅数据  |
-|GetRefundHistory| 根据交易ID，查询用户的所有退款交易 |
+| API | 说明                          |
+| :--- |:----------------------------|
+|LookupOrder| 根据用户订单ID，查询用户的内购交易信息        |
+|GetTransactionInfo| 根据订单交易ID，查询用户的交易信息          |
+|GetTransactionHistory| 根据订单交易ID，查询用户的所有交易记录        |
+|GetAllSubscriptionStatuses| 根据订阅交易ID，查询用户的所有订阅数据        |
+|GetRefundHistory| 根据交易ID，查询用户的所有退款交易        |
+|GetNotificationHistory| 查询 app store 的消息通知历史记录      |
+|RequestTestNotification| 请求 app store 通知服务发送一个测试通知   |
+|GetTestNotificationStatus| 根据请求测试通知返回的测试token，查询测试通知数据 |
 
 > 以上方法的调用，请参考相应方法的 test
 
