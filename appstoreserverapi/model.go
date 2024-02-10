@@ -269,51 +269,51 @@ type SubscriptionLastTransactions struct {
 	SignedTransactionInfo JWSTransaction                  `json:"signedTransactionInfo"`
 }
 
-// NotificationType The type that describes the in-app purchase event for which the App Store sends the version 2 notification
+// NotificationV2Type The type that describes the in-app purchase event for which the App Store sends the version 2 notification
 // https://developer.apple.com/documentation/appstoreservernotifications/notificationtype
-type NotificationType string
+type NotificationV2Type string
 
 const (
-	NotificationTypeConsumptionRequest   NotificationType = "CONSUMPTION_REQUEST"
-	NotificationTypeDidChangeRenewPref   NotificationType = "DID_CHANGE_RENEWAL_PREF"
-	NotificationTypeDidChangeRenewStatus NotificationType = "DID_CHANGE_RENEWAL_STATUS"
-	NotificationTypeDidFailToRenew       NotificationType = "DID_FAIL_TO_RENEW"
-	NotificationTypeDidRenew             NotificationType = "DID_RENEW"
-	NotificationTypeExpired              NotificationType = "EXPIRED"
-	NotificationTypeGracePeriodExpired   NotificationType = "GRACE_PERIOD_EXPIRED"
-	NotificationTypeOfferRedeemed        NotificationType = "OFFER_REDEEMED"
-	NotificationTypePriceIncrease        NotificationType = "PRICE_INCREASE"
-	NotificationTypeRefund               NotificationType = "REFUND"
-	NotificationTypeRefundDeclined       NotificationType = "REFUND_DECLINED"
-	NotificationTypeRefundReversed       NotificationType = "REFUND_REVERSED"
-	NotificationTypeRenewalExtended      NotificationType = "RENEWAL_EXTENDED"
-	NotificationTypeRenewalExtension     NotificationType = "RENEWAL_EXTENSION"
-	NotificationTypeRevoke               NotificationType = "REVOKE"
-	NotificationTypeSubscribed           NotificationType = "SUBSCRIBED"
-	NotificationTypeTest                 NotificationType = "TEST"
+	NotificationV2TypeConsumptionRequest   NotificationV2Type = "CONSUMPTION_REQUEST"
+	NotificationV2TypeDidChangeRenewPref   NotificationV2Type = "DID_CHANGE_RENEWAL_PREF"
+	NotificationV2TypeDidChangeRenewStatus NotificationV2Type = "DID_CHANGE_RENEWAL_STATUS"
+	NotificationV2TypeDidFailToRenew       NotificationV2Type = "DID_FAIL_TO_RENEW"
+	NotificationV2TypeDidRenew             NotificationV2Type = "DID_RENEW"
+	NotificationV2TypeExpired              NotificationV2Type = "EXPIRED"
+	NotificationV2TypeGracePeriodExpired   NotificationV2Type = "GRACE_PERIOD_EXPIRED"
+	NotificationV2TypeOfferRedeemed        NotificationV2Type = "OFFER_REDEEMED"
+	NotificationV2TypePriceIncrease        NotificationV2Type = "PRICE_INCREASE"
+	NotificationV2TypeRefund               NotificationV2Type = "REFUND"
+	NotificationV2TypeRefundDeclined       NotificationV2Type = "REFUND_DECLINED"
+	NotificationV2TypeRefundReversed       NotificationV2Type = "REFUND_REVERSED"
+	NotificationV2TypeRenewalExtended      NotificationV2Type = "RENEWAL_EXTENDED"
+	NotificationV2TypeRenewalExtension     NotificationV2Type = "RENEWAL_EXTENSION"
+	NotificationV2TypeRevoke               NotificationV2Type = "REVOKE"
+	NotificationV2TypeSubscribed           NotificationV2Type = "SUBSCRIBED"
+	NotificationV2TypeTest                 NotificationV2Type = "TEST"
 )
 
-// NotificationSubtype A string that provides details about select notification types in version 2
+// NotificationV2Subtype A string that provides details about select notification types in version 2
 // https://developer.apple.com/documentation/appstoreservernotifications/subtype
-type NotificationSubtype string
+type NotificationV2Subtype string
 
 const (
-	NotificationSubtypeAccepted          NotificationSubtype = "ACCEPTED"
-	NotificationSubtypeAutoRenewDisabled NotificationSubtype = "AUTO_RENEW_DISABLED"
-	NotificationSubtypeAutoRenewEnabled  NotificationSubtype = "AUTO_RENEW_ENABLED"
-	NotificationSubtypeBillingRecovery   NotificationSubtype = "BILLING_RECOVERY"
-	NotificationSubtypeBillingRetry      NotificationSubtype = "BILLING_RETRY"
-	NotificationSubtypeDowngrade         NotificationSubtype = "DOWNGRADE"
-	NotificationSubtypeFailure           NotificationSubtype = "FAILURE"
-	NotificationSubtypeGracePeriod       NotificationSubtype = "GRACE_PERIOD"
-	NotificationSubtypeInitialBuy        NotificationSubtype = "INITIAL_BUY"
-	NotificationSubtypePending           NotificationSubtype = "PENDING"
-	NotificationSubtypePriceIncrease     NotificationSubtype = "PRICE_INCREASE"
-	NotificationSubtypeProductNotForSale NotificationSubtype = "PRODUCT_NOT_FOR_SALE"
-	NotificationSubtypeResubscribe       NotificationSubtype = "RESUBSCRIBE"
-	NotificationSubtypeSummary           NotificationSubtype = "SUMMARY"
-	NotificationSubtypeUpgrade           NotificationSubtype = "UPGRADE"
-	NotificationSubtypeVoluntary         NotificationSubtype = "VOLUNTARY"
+	NotificationV2SubtypeAccepted          NotificationV2Subtype = "ACCEPTED"
+	NotificationV2SubtypeAutoRenewDisabled NotificationV2Subtype = "AUTO_RENEW_DISABLED"
+	NotificationV2SubtypeAutoRenewEnabled  NotificationV2Subtype = "AUTO_RENEW_ENABLED"
+	NotificationV2SubtypeBillingRecovery   NotificationV2Subtype = "BILLING_RECOVERY"
+	NotificationV2SubtypeBillingRetry      NotificationV2Subtype = "BILLING_RETRY"
+	NotificationV2SubtypeDowngrade         NotificationV2Subtype = "DOWNGRADE"
+	NotificationV2SubtypeFailure           NotificationV2Subtype = "FAILURE"
+	NotificationV2SubtypeGracePeriod       NotificationV2Subtype = "GRACE_PERIOD"
+	NotificationV2SubtypeInitialBuy        NotificationV2Subtype = "INITIAL_BUY"
+	NotificationV2SubtypePending           NotificationV2Subtype = "PENDING"
+	NotificationV2SubtypePriceIncrease     NotificationV2Subtype = "PRICE_INCREASE"
+	NotificationV2SubtypeProductNotForSale NotificationV2Subtype = "PRODUCT_NOT_FOR_SALE"
+	NotificationV2SubtypeResubscribe       NotificationV2Subtype = "RESUBSCRIBE"
+	NotificationV2SubtypeSummary           NotificationV2Subtype = "SUMMARY"
+	NotificationV2SubtypeUpgrade           NotificationV2Subtype = "UPGRADE"
+	NotificationV2SubtypeVoluntary         NotificationV2Subtype = "VOLUNTARY"
 )
 
 type NotificationHistoryItem struct {
@@ -323,36 +323,36 @@ type NotificationHistoryItem struct {
 
 type JWSNotification string
 
-func (s JWSNotification) GetNotification() (*Notification, error) {
+func (s JWSNotification) GetNotification() (*NotificationV2, error) {
 	val, err := jws.Parse(string(s))
 	if err != nil {
 		return nil, err
 	}
 	type Payload struct {
 		jwt.RegisteredClaims
-		Notification
+		NotificationV2
 	}
 	var out Payload
 	if err := val.VerifyAndBind(&out); err != nil {
 		return nil, err
 	}
 
-	return &out.Notification, nil
+	return &out.NotificationV2, nil
 }
 
-// Notification the version 2 notification data
+// NotificationV2 the version 2 notification data
 // https://developer.apple.com/documentation/appstoreservernotifications/responsebodyv2decodedpayload
-type Notification struct {
-	NotificationType NotificationType    `json:"notificationType"`
-	Subtype          NotificationSubtype `json:"subtype"`
-	Data             NotificationData    `json:"data"`
-	Summary          NotificationSummary `json:"summary"`
-	Version          string              `json:"version"`
-	SignedDate       int64               `json:"signedDate"`
-	NotificationUUID string              `json:"notificationUUID"`
+type NotificationV2 struct {
+	NotificationType NotificationV2Type    `json:"notificationType"`
+	Subtype          NotificationV2Subtype `json:"subtype"`
+	Data             NotificationV2Data    `json:"data"`
+	Summary          NotificationV2Summary `json:"summary"`
+	Version          string                `json:"version"`
+	SignedDate       int64                 `json:"signedDate"`
+	NotificationUUID string                `json:"notificationUUID"`
 }
 
-type NotificationData struct {
+type NotificationV2Data struct {
 	AppAppleID            int64                           `json:"appAppleId"`
 	BundleID              string                          `json:"bundleId"`
 	BundleVersion         string                          `json:"bundleVersion"`
@@ -362,8 +362,8 @@ type NotificationData struct {
 	Status                AutoRenewableSubscriptionStatus `json:"status"`
 }
 
-// NotificationSummary https://developer.apple.com/documentation/appstoreservernotifications/summary
-type NotificationSummary struct {
+// NotificationV2Summary https://developer.apple.com/documentation/appstoreservernotifications/summary
+type NotificationV2Summary struct {
 	RequestIdentifier      string      `json:"requestIdentifier"`
 	Environment            Environment `json:"environment"`
 	AppAppleID             int64       `json:"appAppleId"`

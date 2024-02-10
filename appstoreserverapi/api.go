@@ -293,9 +293,9 @@ type GetNotificationHistoryReq struct {
 	// [Required]
 	EndDate int64 `json:"endDate"`
 	// [Optional]
-	NotificationType NotificationType `json:"notificationType"`
+	NotificationType NotificationV2Type `json:"notificationType"`
 	// [Optional]
-	NotificationSubtype NotificationSubtype `json:"notificationSubtype"`
+	NotificationSubtype NotificationV2Subtype `json:"notificationSubtype"`
 	// [Optional]
 	OnlyFailures bool `json:"onlyFailures"`
 	// [Optional]
