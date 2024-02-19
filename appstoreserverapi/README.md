@@ -42,7 +42,7 @@ When customers make one or more in-app purchases in your app, the App Store emai
 
 文档：https://developer.apple.com/documentation/appstoreserverapi/jwsdecodedheader
 
-![img.png](img.png)
+![img.png](img/img.png)
 
 x5c 证书链的验证
 
