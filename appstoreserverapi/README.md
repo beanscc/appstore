@@ -36,7 +36,7 @@ Apple 给的说明如下：
 When customers make one or more in-app purchases in your app, the App Store emails them a receipt. The receipt contains an order ID. Use this order ID to call Look Up Order ID. Customers can also retrieve their order IDs from their purchase history on the App Store;
 
 其实就是这个东西，用户反馈时候，让用户提供就可以了       
-![img_4.png](img/img_4.png)
+![apple receipt](img/apple_receipt.jpg)
 
 ## JWS 如何验证
 

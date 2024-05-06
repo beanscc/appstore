@@ -44,9 +44,9 @@ API 调用示例未给出的，请参见 `Test` [方法](appstoreserverapi/api_t
 
 ```go
 config := Config{
-    BundleID: `Your app’s bundle ID (Ex: “com.example.testbundleid2021”)`,
+    BundleID: `Your app’s bundle ID (Ex: "com.example.testbundleid2021")`,
     Issuer:   `Your issuer ID from the Keys page in App Store Connect (Ex: "57246542-96fe-1a63-e053-0824d011072a")`,
-    KeyID:    `Your private key ID from App Store Connect (Ex: 2X9R4HXF34)`,
+    KeyID:    `Your private key ID from App Store Connect (Ex: "2X9R4HXF34")`,
     PrivateKey: []byte(`-----BEGIN PRIVATE KEY-----
     YOUR PRIVATE KEY
     -----END PRIVATE KEY-----`),

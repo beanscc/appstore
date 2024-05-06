@@ -8,9 +8,9 @@ import (
 
 func testConfig() *Config {
 	return &Config{
-		BundleID: `Your app’s bundle ID (Ex: “com.example.testbundleid2021”)`,
+		BundleID: `Your app’s bundle ID (Ex: "com.example.testbundleid2021")`,
 		Issuer:   `Your issuer ID from the Keys page in App Store Connect (Ex: "57246542-96fe-1a63-e053-0824d011072a")`,
-		KeyID:    `Your private key ID from App Store Connect (Ex: 2X9R4HXF34)`,
+		KeyID:    `Your private key ID from App Store Connect (Ex: "2X9R4HXF34")`,
 		PrivateKey: []byte(`-----BEGIN PRIVATE KEY-----
 YOUR PRIVATE KEY
 -----END PRIVATE KEY-----`),
@@ -36,7 +36,9 @@ func TestService_LookupOrder(t *testing.T) {
 func TestService_GetTransactionInfo(t *testing.T) {
 	token := NewToken(testConfig())
 	service := NewService(token).Debug(false)
-	transactionID := `350001859400409`
+	// .Sandbox(true)
+	transactionID := `390001215831987`
+	// transactionID = `2000000538234310`
 	got, err := service.GetTransactionInfo(context.Background(), transactionID)
 	if err != nil {
 		t.Errorf("TestService_GetTransactionInfo failed. err:%v", err)
@@ -44,6 +46,10 @@ func TestService_GetTransactionInfo(t *testing.T) {
 	}
 
 	t.Logf("TestService_GetTransactionInfo: got:%#v", got)
+	t.Logf("OriginalPurchaseDate:%s", time.Unix(got.OriginalPurchaseDate/1000, 0))
+	if got.RevocationReason != nil {
+		t.Logf("TestService_GetTransactionInfo RevocationReason:%v, time:%s", *got.RevocationReason, time.Unix(got.RevocationDate/1000, 0))
+	}
 }
 
 func TestService_GetTransactionHistory(t *testing.T) {
